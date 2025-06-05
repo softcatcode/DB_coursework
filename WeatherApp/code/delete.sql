@@ -1,0 +1,10 @@
+drop table if exists Country;
+drop table if exists City;
+delete from Country where id = %d;
+drop table if exists Plot;
+delete from City where id = %d;
+drop table if exists WeatherType;
+drop table if exists Weather;
+drop table if exists CurrentWeather;
+delete from Weather where cityId = %d and timeEpoch = %d;
+delete from CurrentWeather where cityId = %d and timeEpoch = %d;
