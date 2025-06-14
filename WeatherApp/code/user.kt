@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import com.softcat.database.exceptions.UserVerificationException
 import com.softcat.database.internal.DatabaseRules
 import com.softcat.database.model.UserDbModel
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeout
@@ -18,8 +19,7 @@ class UsersManagerImpl @Inject constructor(): UsersManager {
         Firebase.auth
     }
     private val usersRef by lazy {
-        Firebase.database
-            .getReference(DatabaseRules.USERS_TABLE_NAME)
+        Firebase.database.getReference(DatabaseRules.USERS_TABLE_NAME)
     }
 
     private fun UserDbModel.formatUser(id: String) = copy(
@@ -37,12 +37,16 @@ class UsersManagerImpl @Inject constructor(): UsersManager {
             reference.setValue(newUser).addOnSuccessListener {
                 flag = false
             }.addOnFailureListener {
-                if (isActive)
-                    throw it
-                flag = false
+                try {
+                    if (isActive)
+                        throw it
+                } catch (_: Exception) {}
             }
             while (flag) {
-                delay(1L)
+                if (isActive)
+                    delay(1L)
+                else
+                    cancel()
             }
             userId
         }
@@ -54,12 +58,16 @@ class UsersManagerImpl @Inject constructor(): UsersManager {
             auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener {
                 flag = false
             }.addOnFailureListener {
-                if (isActive)
-                    throw it
-                flag = false
+                try {
+                    if (isActive)
+                        throw it
+                } catch (_: Exception) {}
             }
             while (flag) {
-                delay(1L)
+                if (isActive)
+                    delay(1L)
+                else
+                    cancel()
             }
         }
     }
@@ -77,12 +85,16 @@ class UsersManagerImpl @Inject constructor(): UsersManager {
                 }
                 flag = false
             }.addOnFailureListener {
-                if (isActive)
-                    throw it
-                flag = false
+                try {
+                    if (isActive)
+                        throw it
+                } catch (_: Exception) {}
             }
             while (flag) {
-                delay(1L)
+                if (isActive)
+                    delay(1L)
+                else
+                    cancel()
             }
             users
         }
@@ -92,16 +104,19 @@ class UsersManagerImpl @Inject constructor(): UsersManager {
         withTimeout(DatabaseRules.TIMEOUT) {
             val reference = Firebase.database.getReference(userId)
             var flag = true
-            reference.setValue(emptyList<Int>())
-            .addOnSuccessListener {
+            reference.setValue(emptyList<Int>()).addOnSuccessListener {
                 flag = false
             }.addOnFailureListener {
-                if (isActive)
-                    throw it
-                flag = false
+                try {
+                    if (isActive)
+                        throw it
+                } catch (_: Exception) {}
             }
             while (flag) {
-                delay(1L)
+                if (isActive)
+                    delay(1L)
+                else
+                    cancel()
             }
         }
     }
