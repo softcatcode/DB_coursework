@@ -19,7 +19,9 @@ class UsersManagerImpl @Inject constructor(): UsersManager {
         Firebase.auth
     }
     private val usersRef by lazy {
-        Firebase.database.getReference(DatabaseRules.USERS_TABLE_NAME)
+        Firebase.database.getReference(
+            DatabaseRules.USERS_TABLE_NAME
+        )
     }
 
     private fun UserDbModel.formatUser(id: String) = copy(
@@ -104,7 +106,8 @@ class UsersManagerImpl @Inject constructor(): UsersManager {
         withTimeout(DatabaseRules.TIMEOUT) {
             val reference = Firebase.database.getReference(userId)
             var flag = true
-            reference.setValue(emptyList<Int>()).addOnSuccessListener {
+            reference.setValue(emptyList<Int>())
+            .addOnSuccessListener {
                 flag = false
             }.addOnFailureListener {
                 try {
